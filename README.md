@@ -49,7 +49,9 @@ Outputs by default:
 Change rotation speed and intensity:
 
 ```
-dolbyafy convert samples/dark-house-24s-46s.mp3 --rotation-period 14 --intensity 1.2
+dolbyafy convert samples/dark-house-24s-46s.mp3 \
+  --rotation-period 14 \
+  --intensity 1.2
 ```
 
 Create a 5.1 FLAC instead of AAC:
@@ -67,7 +69,8 @@ dolbyafy convert samples/dark-house-24s-46s.mp3 --format mp3
 Write the 5.1 WAV to a custom path:
 
 ```
-dolbyafy convert samples/dark-house-24s-46s.mp3 --surround-wav samples/ref.5_1.wav
+dolbyafy convert samples/dark-house-24s-46s.mp3 \
+  --surround-wav samples/ref.5_1.wav
 ```
 
 ## Output Notes
@@ -83,6 +86,21 @@ Install dev dependencies if needed:
 
 ```
 pip install -e ".[dev]"
+```
+
+## Development
+
+Auto-format and lint:
+
+```
+black .
+ruff check .
+```
+
+Enable pre-commit hooks:
+
+```
+pre-commit install
 ```
 
 ```

@@ -5,6 +5,5 @@ dependencies:
   - python=3.11
   - pip
   - ffmpeg
-  - pytest
   - pip:
-      - -e .
+      - -e ".[dev]"

@@ -22,8 +22,16 @@ dependencies = [
   "typer>=0.12",
 ]
 
+[project.urls]
+Homepage = "https://github.com/tpn/dolbyafy"
+
 [project.optional-dependencies]
-dev = ["pytest>=7.4"]
+dev = [
+  "black>=24.10",
+  "pre-commit>=3.8",
+  "pytest>=7.4",
+  "ruff>=0.6.9",
+]
 
 [project.scripts]
 dolbyafy = "dolbyafy.cli:app"
@@ -33,3 +41,17 @@ packages = ["src/dolbyafy"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.black]
+line-length = 78
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 78
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["B", "E", "F", "I"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/dolbyafy/cli.py" = ["B008"]

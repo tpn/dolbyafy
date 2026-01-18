@@ -33,7 +33,11 @@ def main() -> None:
 @app.command()
 def convert(
     input_path: Path = typer.Argument(
-        ..., exists=True, dir_okay=False, readable=True, help="Input audio path."
+        ...,
+        exists=True,
+        dir_okay=False,
+        readable=True,
+        help="Input audio path.",
     ),
     output_path: Optional[Path] = typer.Option(
         None,
@@ -82,7 +86,9 @@ def convert(
             input_path, clip, sample_rate, progress=progress
         )
 
-    with tqdm(total=len(samples), unit="frame", desc="Designing surround") as progress:
+    with tqdm(
+        total=len(samples), unit="frame", desc="Designing surround"
+    ) as progress:
         surround = make_surround(
             samples,
             sample_rate,
@@ -91,8 +97,12 @@ def convert(
             progress=progress,
         )
 
-    with tqdm(total=len(surround), unit="frame", desc="Writing 5.1 WAV") as progress:
-        export_surround_wav(surround, sample_rate, surround_wav, progress=progress)
+    with tqdm(
+        total=len(surround), unit="frame", desc="Writing 5.1 WAV"
+    ) as progress:
+        export_surround_wav(
+            surround, sample_rate, surround_wav, progress=progress
+        )
 
     if output_format is OutputFormat.aac:
         with tqdm(

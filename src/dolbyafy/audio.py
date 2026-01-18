@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Any, Optional, Tuple
-
 import json
 import subprocess
 import wave
+from pathlib import Path
+from typing import Any, Optional, Tuple
 
 import numpy as np
 
@@ -90,11 +89,13 @@ def load_audio(
     stderr = proc.stderr.read().decode().strip()
     return_code = proc.wait()
     if return_code != 0:
-        raise RuntimeError(
-            f"ffmpeg decode failed for {path}: {stderr}"
-        )
+        raise RuntimeError(f"ffmpeg decode failed for {path}: {stderr}")
 
-    if progress is not None and progress.total and frames_read != progress.total:
+    if (
+        progress is not None
+        and progress.total
+        and frames_read != progress.total
+    ):
         progress.total = max(frames_read, 1)
         progress.refresh()
 
@@ -152,7 +153,9 @@ def make_surround(
     front_angle = angle
     rear_angle = angle + np.pi
 
-    def weight(theta: float, steering: np.ndarray, sharpness: float) -> np.ndarray:
+    def weight(
+        theta: float, steering: np.ndarray, sharpness: float
+    ) -> np.ndarray:
         return np.clip(np.cos(steering - theta), 0.0, 1.0) ** sharpness
 
     theta_fl = np.deg2rad(30.0)
@@ -192,18 +195,22 @@ def make_surround(
     surround = np.empty((len(mid), 6), dtype=np.float32)
     for start in range(0, len(mid), chunk_frames):
         end = min(len(mid), start + chunk_frames)
-        ch_fl = base_front[start:end] + (
-            front_fx[start:end] + side[start:end] * 0.22
-        ) * w_fl[start:end]
-        ch_fr = base_front[start:end] + (
-            front_fx[start:end] - side[start:end] * 0.22
-        ) * w_fr[start:end]
-        ch_sl = base_rear[start:end] + (
-            rear_fx[start:end] - side[start:end] * 0.15
-        ) * w_sl[start:end]
-        ch_sr = base_rear[start:end] + (
-            rear_fx[start:end] + side[start:end] * 0.15
-        ) * w_sr[start:end]
+        ch_fl = (
+            base_front[start:end]
+            + (front_fx[start:end] + side[start:end] * 0.22) * w_fl[start:end]
+        )
+        ch_fr = (
+            base_front[start:end]
+            + (front_fx[start:end] - side[start:end] * 0.22) * w_fr[start:end]
+        )
+        ch_sl = (
+            base_rear[start:end]
+            + (rear_fx[start:end] - side[start:end] * 0.15) * w_sl[start:end]
+        )
+        ch_sr = (
+            base_rear[start:end]
+            + (rear_fx[start:end] + side[start:end] * 0.15) * w_sr[start:end]
+        )
         ch_c = ch_c_full[start:end]
         lfe_chunk = lfe[start:end]
 
@@ -260,7 +267,10 @@ def _export_ffmpeg(
     cmd.append(str(output_path))
 
     proc = subprocess.Popen(
-        cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        cmd,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
     )
     if proc.stdin is None or proc.stderr is None:
         raise RuntimeError(f"Failed to spawn ffmpeg for {codec} encoding.")
