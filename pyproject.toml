@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling>=1.22"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dolbyafy"
+version = "0.1.0"
+description = "A 5.1 surround audio swirl tool for MP3s."
+requires-python = ">=3.10"
+dependencies = [
+  "audioop-lts>=0.2; python_version >= \"3.13\"",
+  "numpy>=1.24",
+  "pydub>=0.25",
+  "tqdm>=4.66",
+  "typer>=0.12",
+]
+
+[project.scripts]
+dolbyafy = "dolbyafy.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dolbyafy"]
