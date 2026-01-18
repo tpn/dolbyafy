@@ -5,16 +5,31 @@ build-backend = "hatchling.build"
 [project]
 name = "dolbyafy"
 version = "0.1.0"
-description = "A 5.1 surround audio swirl tool for MP3s."
+description = "A 5.1 surround audio swirl tool."
+readme = "README.md"
+license = {file = "LICENSE"}
 requires-python = ">=3.10"
+keywords = ["audio", "surround", "dolby", "5.1", "ffmpeg"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Topic :: Multimedia :: Sound/Audio",
+]
 dependencies = [
   "numpy>=1.24",
   "tqdm>=4.66",
   "typer>=0.12",
 ]
 
+[project.optional-dependencies]
+dev = ["pytest>=7.4"]
+
 [project.scripts]
 dolbyafy = "dolbyafy.cli:app"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/dolbyafy"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

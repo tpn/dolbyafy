@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+build/
+dist/
+
+samples/*.dolby.*
+samples/*.5_1.wav
+samples/*.5_1.m4a
+samples/*.5_1.flac
