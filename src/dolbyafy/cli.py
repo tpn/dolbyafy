@@ -54,7 +54,7 @@ def convert(
     surround_wav: Optional[Path] = typer.Option(
         None,
         "--surround-wav",
-        help="Optional 5.1 WAV output path for true multichannel playback.",
+        help="5.1 WAV output path. Defaults to '<input>.dolby.5_1.wav'.",
     ),
     sample_rate: int = typer.Option(
         48000, "--sample-rate", "-r", help="Target sample rate."
@@ -74,6 +74,9 @@ def convert(
         }
         output_path = input_path.with_suffix(suffixes[output_format])
 
+    if surround_wav is None:
+        surround_wav = input_path.with_suffix(".dolby.5_1.wav")
+
     with tqdm(unit="frame", desc="Loading audio") as progress:
         samples, sample_rate = load_audio(
             input_path, clip, sample_rate, progress=progress
@@ -88,13 +91,8 @@ def convert(
             progress=progress,
         )
 
-    if surround_wav is not None:
-        with tqdm(
-            total=len(surround), unit="frame", desc="Writing 5.1 WAV"
-        ) as progress:
-            export_surround_wav(
-                surround, sample_rate, surround_wav, progress=progress
-            )
+    with tqdm(total=len(surround), unit="frame", desc="Writing 5.1 WAV") as progress:
+        export_surround_wav(surround, sample_rate, surround_wav, progress=progress)
 
     if output_format is OutputFormat.aac:
         with tqdm(
