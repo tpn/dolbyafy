@@ -228,6 +228,60 @@ def _float_to_pcm(samples: np.ndarray) -> np.ndarray:
     return (pcm * 32767.0).astype(np.int16)
 
 
+def _export_ffmpeg(
+    samples: np.ndarray,
+    sample_rate: int,
+    output_path: Path,
+    codec: str,
+    bitrate: Optional[str] = None,
+    progress: Optional[Any] = None,
+) -> None:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    channels = samples.shape[1]
+    cmd = [
+        "ffmpeg",
+        "-v",
+        "error",
+        "-nostats",
+        "-y",
+        "-f",
+        "s16le",
+        "-ar",
+        str(sample_rate),
+        "-ac",
+        str(channels),
+        "-i",
+        "pipe:0",
+        "-c:a",
+        codec,
+    ]
+    if bitrate:
+        cmd += ["-b:a", bitrate]
+    cmd.append(str(output_path))
+
+    proc = subprocess.Popen(
+        cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+    if proc.stdin is None or proc.stderr is None:
+        raise RuntimeError(f"Failed to spawn ffmpeg for {codec} encoding.")
+
+    chunk_frames = max(2048, int(sample_rate * 0.5))
+    for start in range(0, len(samples), chunk_frames):
+        end = min(len(samples), start + chunk_frames)
+        pcm = _float_to_pcm(samples[start:end])
+        proc.stdin.write(pcm.tobytes())
+        if progress is not None:
+            progress.update(end - start)
+
+    proc.stdin.close()
+    stderr = proc.stderr.read().decode().strip()
+    return_code = proc.wait()
+    if return_code != 0:
+        raise RuntimeError(
+            f"ffmpeg {codec} encode failed for {output_path}: {stderr}"
+        )
+
+
 def matrix_downmix(samples: np.ndarray, sample_rate: int) -> np.ndarray:
     fl, fr, c, lfe, sl, sr = samples.T
     surround_diff = sl - sr
@@ -274,43 +328,43 @@ def export_surround_mp3(
     progress: Optional[Any] = None,
 ) -> None:
     stereo = matrix_downmix(samples, sample_rate)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    cmd = [
-        "ffmpeg",
-        "-v",
-        "error",
-        "-nostats",
-        "-y",
-        "-f",
-        "s16le",
-        "-ar",
-        str(sample_rate),
-        "-ac",
-        "2",
-        "-i",
-        "pipe:0",
-        "-b:a",
-        bitrate,
-        str(output_path),
-    ]
-    proc = subprocess.Popen(
-        cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    _export_ffmpeg(
+        stereo,
+        sample_rate,
+        output_path,
+        codec="libmp3lame",
+        bitrate=bitrate,
+        progress=progress,
     )
-    if proc.stdin is None or proc.stderr is None:
-        raise RuntimeError("Failed to spawn ffmpeg for MP3 encoding.")
 
-    chunk_frames = max(2048, int(sample_rate * 0.5))
-    for start in range(0, len(stereo), chunk_frames):
-        end = min(len(stereo), start + chunk_frames)
-        pcm = _float_to_pcm(stereo[start:end])
-        proc.stdin.write(pcm.tobytes())
-        if progress is not None:
-            progress.update(end - start)
 
-    proc.stdin.close()
-    stderr = proc.stderr.read().decode().strip()
-    return_code = proc.wait()
-    if return_code != 0:
-        raise RuntimeError(
-            f"ffmpeg MP3 encode failed for {output_path}: {stderr}"
-        )
+def export_surround_aac(
+    samples: np.ndarray,
+    sample_rate: int,
+    output_path: Path,
+    bitrate: str = "384k",
+    progress: Optional[Any] = None,
+) -> None:
+    _export_ffmpeg(
+        samples,
+        sample_rate,
+        output_path,
+        codec="aac",
+        bitrate=bitrate,
+        progress=progress,
+    )
+
+
+def export_surround_flac(
+    samples: np.ndarray,
+    sample_rate: int,
+    output_path: Path,
+    progress: Optional[Any] = None,
+) -> None:
+    _export_ffmpeg(
+        samples,
+        sample_rate,
+        output_path,
+        codec="flac",
+        progress=progress,
+    )
