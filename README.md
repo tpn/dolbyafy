@@ -103,6 +103,20 @@ Enable pre-commit hooks:
 pre-commit install
 ```
 
+## Releases
+
+Bump the version:
+
+```
+python scripts/bump_version.py 1.0.0
+```
+
+Tag a release:
+
+```
+scripts/cut_release.sh v1.0.0
+```
+
 ```
 pytest
 ```

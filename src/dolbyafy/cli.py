@@ -15,6 +15,7 @@ from dolbyafy.audio import (
     load_audio,
     make_surround,
 )
+from dolbyafy.version import get_version
 
 app = typer.Typer(help="Create swirling surround audio for 5.1 systems.")
 
@@ -26,8 +27,18 @@ class OutputFormat(str, Enum):
 
 
 @app.callback()
-def main() -> None:
+def main(
+    version: bool = typer.Option(
+        False,
+        "--version",
+        help="Show version and exit.",
+        is_eager=True,
+    )
+) -> None:
     """Dolbyafy command line tools."""
+    if version:
+        typer.echo(f"dolbyafy {get_version()}")
+        raise typer.Exit()
 
 
 @app.command()

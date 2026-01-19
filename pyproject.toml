@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "dolbyafy"
-version = "0.1.0"
+version = "1.0.0"
 description = "A 5.1 surround audio swirl tool."
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -28,6 +28,7 @@ Homepage = "https://github.com/tpn/dolbyafy"
 [project.optional-dependencies]
 dev = [
   "black>=24.10",
+  "build>=1.2",
   "pre-commit>=3.8",
   "pytest>=7.4",
   "ruff>=0.6.9",
